@@ -13,8 +13,7 @@ module Input(
 	reg[3:0] Value0;
 	reg[3:0] Value1;
 	reg[3:0] Value2;
-	always @(posedge rst or posedge Left or posedge Right 
-		or posedge Enter or posedge Up or posedge Down)
+	always @*
 	begin
 		if (rst) begin
 			Value = 0;
