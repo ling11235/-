@@ -35,16 +35,16 @@ module Input(
 				
 			case(Num)
 				2'b00:begin
-						Value0 = Down ? (!Value0 ? Value0-4'b0111 : Value0-4'b0001) : Value0;
-						Value0 = Up ? ((Value0==4'b1001) ? Value0+4'b0111 : Value0+4'b0001) : Value0;
+					Value0 = Down ? (!Value0 ? Value0-4'b0111 : Value0-4'b0001) : Value0;
+					Value0 = Up ? ((Value0==4'b1001) ? Value0+4'b0111 : Value0+4'b0001) : Value0;
 				end
 				2'b01:begin
-						Value1 = Down ? (!Value1 ? Value1-4'b0111 : Value1-4'b0001) : Value1;
-						Value1 = Up ? ((Value1==4'b1001) ? Value1+4'b0111 : Value1+4'b0001) : Value1;
+					Value1 = Down ? (!Value1 ? Value1-4'b0111 : Value1-4'b0001) : Value1;
+					Value1 = Up ? ((Value1==4'b1001) ? Value1+4'b0111 : Value1+4'b0001) : Value1;
 				end
 				2'b10:begin
-						Value2 = Down ? (!Value2 ? Value2-4'b0111 : Value2-4'b0001) : Value2;
-						Value2 = Up ? ((Value2==4'b1001) ? Value2+4'b0111 : Value2+4'b0001) : Value2;
+					Value2 = Down ? (!Value2 ? Value2-4'b0111 : Value2-4'b0001) : Value2;
+					Value2 = Up ? ((Value2==4'b1001) ? Value2+4'b0111 : Value2+4'b0001) : Value2;
 				end
 			endcase
 			Value = Value0*100 + Value1*10 + Value2;
