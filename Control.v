@@ -2,6 +2,7 @@
 // 未测试，待改进。
 module Control(
 	input rst,
+	input clk,
 	input[5:0] InitFlag, // 初始化标志位
 	input[2:0] Motor, // 当前电机编号
 	input[9:0] Value, // 当前电机目标坐标
@@ -17,7 +18,7 @@ module Control(
 	reg[5:0] DRcache, // 方向信号缓存
 	reg[5:0] MFcache // 上电信号缓存，也即PulseSign模块的使能信号缓存
 
-	always @* begin
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			PUs = 0;
 			DRs = 0;
