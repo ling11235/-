@@ -1,3 +1,6 @@
+// Input:适合五键（Up，Down，Enter，Left，Right）的输入模块。
+// 首先使用Left，Right选择电机，按下Enter后，
+// 再通过Left、Right选择选择位，Up，Down选择值，之后再按下Enter即可。
 module Input(
 	input rst,
 	input Left,
@@ -7,12 +10,12 @@ module Input(
 	input Enter,
 	output reg [9:0] Value, // 电机位移值
 	output reg [2:0] Motor, // 电机编号
-	output reg Lock // 电机锁
+	output reg Lock // 电机锁，锁定时只能改动相应电机坐标值。
 	);
 	reg[1:0] Num; // 位号
-	reg[3:0] Value0;
-	reg[3:0] Value1;
-	reg[3:0] Value2;
+	reg[3:0] Value0; // 百位
+	reg[3:0] Value1; // 十位
+	reg[3:0] Value2; // 个位
 	always @*
 	begin
 		if (rst) begin
