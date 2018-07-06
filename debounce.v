@@ -46,7 +46,7 @@ module DEBOUNCE(
     end
     
     always @ (posedge sys_clk) begin
-        if (key_count)
+        if (key_count == 1)
             count <= count + 1;
         else
             count <= 0;
