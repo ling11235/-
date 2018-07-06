@@ -1,5 +1,5 @@
 `timescale 1ns/1ns
-
+// Input模块测试文件
 module Input_tb;
 	reg rst, Left, Right, Enter, Up, Down;
 	wire[9:1'b0] Value;
