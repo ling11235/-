@@ -15,11 +15,11 @@ module Control(
 	reg[9:0] LastValues[5:0]; // 所有电机上次坐标
 
 	always @(posedge clk or negedge rst) begin
-		if (rst) begin
-			PulseNum = 0; Enable = 0; DRs = 0;
-			MotorValue = 0;
-			LastValues[0] = 0; LastValues[1] = 0; LastValues[2] = 0;
-			LastValues[3] = 0; LastValues[4] = 0; LastValues[5] = 0;
+		if (rst==0) begin
+			PulseNum <= 0; Enable <= 0; DRs <= 0;
+			MotorValue <= 0;
+			LastValues[0] <= 0; LastValues[1] <= 0; LastValues[2] <= 0;
+			LastValues[3] <= 0; LastValues[4] <= 0; LastValues[5] <= 0;
 		end
 		else if (InputLock==0 && InitFlag==6'b11_1111 && Busy==0) begin
 			// TODO:case语句实现归一化位移到脉冲数之间的转换
