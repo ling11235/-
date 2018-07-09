@@ -15,7 +15,7 @@ module Control(
 	reg[9:0] LastValues[5:0]; // 所有电机上次坐标
 
 	always @(posedge clk or negedge rst) begin
-		if (rst) begin
+		if (rst==0) begin
 			PulseNum <= 0; Enable <= 0; DRs <= 0;
 			MotorValue <= 0;
 			LastValues[0] <= 0; LastValues[1] <= 0; LastValues[2] <= 0;
