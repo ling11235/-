@@ -28,6 +28,8 @@ module PULSE(
 	output reg Sign // 输出：脉冲串
 	);
 
+	initial Enable <= 0;
+
 	parameter numFreqcnt = 10;  // 计数个数，等于输出脉冲周期*系统时钟频率*0.5
 
 	reg [14:0] Freqcnt; // 计数器，用来设置输出脉冲的周期
