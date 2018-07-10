@@ -29,7 +29,7 @@ initial begin
 	Value = 0;
 	InputLock = 0;
 	#40 rst = 1;
-	#40 rst = 0;
+	//#40 rst = 0;
 	#40 InitFlag = 6'b11_1111;
 	#40 Motor = 2;
 	#40 InputLock = 1;

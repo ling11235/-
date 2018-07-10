@@ -14,13 +14,13 @@ module PulseSign(
 	reg tmp;
 	
 	always @(posedge clk or negedge rst) begin
-		if (rst==1 || Enable==0) begin
+		if (rst==0 || Enable==0) begin
 			Freqcnt = 0;
-			PUs = 0;
-			cnt = 0;
-			tmp = 0;
-			Busy = 0;
-			MFs = 0;
+			PUs <= 0;
+			cnt <= 0;
+			tmp <= 0;
+			Busy <= 0;
+			MFs <= 0;
 		end
 		else if (Enable==1) begin // 可更改此处参数以改变频率 // 电机可接受脉冲频率的要求
 			Busy <= cnt<PulseNum ? 1 : 0;

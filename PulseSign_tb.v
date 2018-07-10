@@ -11,7 +11,7 @@ module PulseSign_tb;
 		Enable = 0;
 		PulseNum = 5;
 		#10 rst = 1;
-		#10 rst = 0;
+		//#10 rst = 0;
 		#50 Enable = 1;
 		#11000 Enable = 0;
 	end
