@@ -9,16 +9,18 @@ module Input(
 	input Up,
 	input Down,
 	input Enter,
-	output reg [11:0] Value, // 电机位移值
-	output reg [5:0] Motor // 电机编号
+	output reg[3:0] TValue0, // 电机位移值百位
+	output reg[3:0] TValue1, // 电机位移值十位
+	output reg[3:0] TValue2, // 电机位移值个位
+	output reg[5:0] Motor // 电机编号
 	);
 	reg LastL,LastR,LastU,LastD; // 输入缓存
 	reg LL,RR,UU,DD; // 输入上升沿标志
 	reg[1:0] Num; // 位号
 	reg[5:0] MotorCache; // 电机编号缓存
-	reg[3:0] Value0; // 电机位移值百位缓存
-	reg[3:0] Value1; // 电机位移值十位缓存
-	reg[3:0] Value2; // 电机位移值个位缓存
+	reg[3:0] CTValue0; // 电机位移值百位缓存
+	reg[3:0] CTValue1; // 电机位移值十位缓存
+	reg[3:0] CTValue2; // 电机位移值个位缓存
 	
 
 	// 检测输入的上升沿
@@ -50,7 +52,7 @@ module Input(
 	// 修改电机号/坐标值
 	always @(negedge rst or posedge sysclk) begin
 	 	if (rst==0) begin
-	 		Value0 <= 0; Value1 <= 0; Value2 <= 0;
+	 		CTValue0 <= 0; CTValue1 <= 0; CTValue2 <= 0;
 	 		MotorCache <= 1;
 	 	end
 	 	else begin
@@ -60,16 +62,16 @@ module Input(
 										: (UU==1 ? (MotorCache==6'b10_0000 ? 1 : MotorCache<<1) : MotorCache);
 				end
 				2'b01:begin // 百位
-					Value0 <= DD==1 ? (Value0==0 ? 9 : Value0-1)
-									: (UU==1 ? (Value0==9 ? 0 : Value0+1) : Value0);
+					CTValue0 <= DD==1 ? (CTValue0==0 ? 9 : CTValue0-1)
+									: (UU==1 ? (CTValue0==9 ? 0 : CTValue0+1) : CTValue0);
 				end
 				2'b10:begin //十位
-					Value1 <= DD==1 ? (Value1==0 ? 9 : Value1-1)
-									: (UU==1 ? (Value1==9 ? 0 : Value1+1) : Value1);
+					CTValue1 <= DD==1 ? (CTValue1==0 ? 9 : CTValue1-1)
+									: (UU==1 ? (CTValue1==9 ? 0 : CTValue1+1) : CTValue1);
 				end
 				2'b11:begin // 个位
-					Value2 <= DD==1 ? (Value2==0 ? 9 : Value2-1)
-									: (UU==1 ? (Value2==9 ? 0 : Value2+1) : Value2);
+					CTValue2 <= DD==1 ? (CTValue2==0 ? 9 : CTValue2-1)
+									: (UU==1 ? (CTValue2==9 ? 0 : CTValue2+1) : CTValue2);
 				end
 			endcase
 		end
@@ -77,12 +79,12 @@ module Input(
 	 // 读缓存
 	 always @(negedge rst or posedge sysclk ) begin
 		if (rst==0) begin
-			Value <= 0; Motor <= 0;
+			TValue <= 0; Motor <= 0;
 		end
 		else begin
-			Value[11:8] <= Enter==1 ? Value0 : Value[11:8];
-			Value[7:4] <= Enter==1 ? Value1 : Value[7:4];
-			Value[3:0] <= Enter==1 ? Value2 : Value[3:0];
+			TValue0 <= Enter==1 ? CTValue0 : TValue0;
+			TValue1 <= Enter==1 ? CTValue1 : TValue1;
+			TValue2 <= Enter==1 ? CTValue2 : TValue2;
 			Motor <= Enter==1 ? MotorCache : Motor;
 		end
 	end
