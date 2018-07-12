@@ -6,10 +6,12 @@ module Pulse(
 	input[5:0] Stop, // 限位触发信号
 	output reg Busy, // 工作标志
 	output reg[5:0] initFlag, // 原点标定标志
+	output reg SS, // Stop上升沿信号
+	output reg DSS, // Stop下降沿信号
 	output reg[5:0] PU, // 脉冲
 	output reg[5:0] MF // 上电
 	);
-	reg Sign,SS;
+	reg Sign;
 	reg[5:0] LastStop;
 	reg[5:0] LastMotor; // 上次电机
 	reg[9:0] LastPulse; // 上次脉冲数
@@ -24,6 +26,7 @@ module Pulse(
 	always @(posedge sysclk) begin
 		LastStop <= Stop;
 		SS <= LastStop==Stop ? 0 : (|Stop);
+		DSS <= LastStop==Stop ? 0 : (|LastStop);
 	end
 	// initFlag信号初始化为0, 假定Stop初始时为0
 	always @(posedge sysclk) begin
@@ -45,7 +48,7 @@ module Pulse(
 			if (initFlag==0)
 				LastMotor <= 1;
 			else
-				LastMotor <= SS==1 ? LastMotor<<1 : LastMotor;
+				LastMotor <= DSS==1 ? LastMotor<<1 : LastMotor;
 		end
 	end
 	// Busy
@@ -57,8 +60,16 @@ module Pulse(
 			else // 脉冲数或电机号发生变化时置1
 				Busy <= 1;
 		end
-		else begin// 初始化为0，随即变为1(Stop全为0)
-			Busy <= Stop==0? ((Signcnt<LastPulse) ? 1 : 0) : 0;
+		else begin
+			if (Stop==0) 
+				Busy <= Signcnt<LastPulse ? 1 : 0;
+			else begin
+				if (SS==1)
+					Busy <= 0;
+				else begin
+					Busy <= Signcnt<LastPulse ? 1 : (DSS==1 ? 0 : Busy);
+				end
+			end
 		end
 	end
 	// 分频计数器 // 频率可调
