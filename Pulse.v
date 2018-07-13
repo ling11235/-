@@ -3,15 +3,17 @@ module Pulse(
 	input sysclk,
 	input[5:0] Motor,
 	input[9:0] PulseNum,
+	input[5:0] DRIn,
 	input[5:0] Stop, // 限位触发信号
 	output reg Busy, // 工作标志
+	output reg INIT, // 初始化标识
 	output reg[5:0] initFlag, // 原点标定标志
-	output reg SS, // Stop上升沿信号
-	output reg DSS, // Stop下降沿信号
 	output reg[5:0] PU, // 脉冲
-	output reg[5:0] MF // 上电
+	output reg[5:0] MF, // 上电
+	output reg[5:0] DR // 方向
 	);
-	reg Sign;
+	reg Sign,SS,DSS;
+	reg[1:0] tmp; // 时钟沿计数器 //仅初始化使用
 	reg[5:0] LastStop;
 	reg[5:0] LastMotor; // 上次电机
 	reg[9:0] LastPulse; // 上次脉冲数
@@ -19,18 +21,25 @@ module Pulse(
 	reg[14:0] Freqcnt;
 
 	parameter Boundry = 49; // 分频倍数
-	initial initFlag = 0;
-	initial Busy = 0;
+	initial INIT = 1;
+	initial tmp = 0;
 
 	//Stop上升沿检测
 	always @(posedge sysclk) begin
 		LastStop <= Stop;
-		SS <= LastStop==Stop ? 0 : (|Stop);
-		DSS <= LastStop==Stop ? 0 : (|LastStop);
+		SS <= LastStop==Stop ? 0 : (|Stop); // Stop上升沿
+		DSS <= LastStop==Stop ? 0 : (|LastStop); // Stop下降沿
+	end
+	always @(posedge sysclk) begin
+		tmp = INIT==1 ? tmp+1 : 0;
+		INIT <= tmp==2'b10 ? 0 : INIT;
 	end
 	// initFlag信号初始化为0, 假定Stop初始时为0
 	always @(posedge sysclk) begin
-		initFlag <= Stop==0 ? initFlag : (Stop&LastMotor)|initFlag;
+		if (INIT==1)
+			initFlag <= 0;
+		else
+			initFlag <= DSS==1 ? (initFlag<<1) + 1 : initFlag;
 	end
 	// LastPulse
 	always @(posedge sysclk) begin
@@ -45,24 +54,33 @@ module Pulse(
 		if (&initFlag) // 已标定原点
 			LastMotor <= LastMotor==Motor ? LastMotor : Motor;
 		else begin// 初值为1,6次移位后终值为0
-			if (initFlag==0)
+			if (INIT==1)
 				LastMotor <= 1;
 			else
 				LastMotor <= DSS==1 ? LastMotor<<1 : LastMotor;
 		end
 	end
+	// DR
+	always @(posedge sysclk) begin
+		if (&initFlag)
+			DR <= DRIn;
+		else
+			DR <= Stop;
+	end
 	// Busy
 	always @(posedge sysclk) begin
 		if (&initFlag) begin  // 已标定原点
 			// 脉冲发射完后置0
-			if (LastPulse==PulseNum && LastMotor==Motor)
+			if (DR==DRIn && LastPulse==PulseNum && LastMotor==Motor)
 				Busy <= Signcnt<LastPulse ? Busy : 0;
-			else // 脉冲数或电机号发生变化时置1
+			else // 脉冲数或电机号或者转动方向发生变化后置1
 				Busy <= 1;
 		end
 		else begin
-			if (Stop==0) 
-				Busy <= Signcnt<LastPulse ? 1 : 0;
+			if (|tmp==1)
+				Busy <= 0;
+			else if (Stop==0) 
+				Busy <= (Signcnt<LastPulse ? 1 : 0);
 			else begin
 				if (SS==1)
 					Busy <= 0;
