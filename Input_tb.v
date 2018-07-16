@@ -3,19 +3,20 @@
 module Input_tb;
 	reg rst,sysclk;
     reg Left, Right, Enter, Up, Down;
+    reg INIT;
 	wire[3:0] TValue0;
     wire[3:0] TValue1;
     wire[3:0] TValue2;
 	wire[5:0] Motor;
 
 	initial begin
-    	rst = 1;
-        sysclk = 1;
-    	Left = 0;
-    	Right = 0;
+    	rst = 1; sysclk = 1;
+    	Left = 0; Right = 0;
     	Enter = 0;
-    	Up = 0;
-    	Down = 0;
+    	Up = 0; Down = 0;
+        INIT = 1;
+        #10 INIT = 0;
+
     	#100 rst = 0; // 复位
     	#100 rst = 1; // Motor:000000,MotorCache:000001,Num:00
                       // TValue0:0,TValue1:0,TValue2:0,
