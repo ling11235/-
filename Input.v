@@ -79,7 +79,8 @@ module Input(
 	 // 读缓存
 	 always @(negedge rst or posedge sysclk ) begin
 		if (rst==0) begin
-			TValue <= 0; Motor <= 0;
+			TValue0 <= 0; TValue1 <= 0; TValue2 <= 0;
+			Motor <= 0;
 		end
 		else begin
 			TValue0 <= Enter==1 ? CTValue0 : TValue0;
