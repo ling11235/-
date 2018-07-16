@@ -9,6 +9,7 @@ module Input(
 	input Up,
 	input Down,
 	input Enter,
+	input INIT,
 	output reg[3:0] TValue0, // 电机位移值百位
 	output reg[3:0] TValue1, // 电机位移值十位
 	output reg[3:0] TValue2, // 电机位移值个位
@@ -25,7 +26,7 @@ module Input(
 
 	// 检测输入的上升沿
 	always @(negedge rst or posedge sysclk) begin
-		if (rst==0) begin
+		if (rst==0 || INIT==1) begin
 			LastL <= 0; LastR <= 0; LastU <= 0; LastD <= 0;
 			LL <= 0; RR <= 0; UU <= 0; DD <= 0;
 		end
@@ -42,7 +43,7 @@ module Input(
 	end
 	// 切换电机-坐标位
 	always @(negedge rst or posedge sysclk) begin
-		if (rst==0) begin
+		if (rst==0 || INIT==1) begin
 			Num <= 0;
 		end	
 		else begin
@@ -51,7 +52,7 @@ module Input(
 	end
 	// 修改电机号/坐标值
 	always @(negedge rst or posedge sysclk) begin
-	 	if (rst==0) begin
+	 	if (rst==0 || INIT==1) begin
 	 		CTValue0 <= 0; CTValue1 <= 0; CTValue2 <= 0;
 	 		MotorCache <= 1;
 	 	end
@@ -78,7 +79,7 @@ module Input(
 	 end
 	 // 读缓存
 	 always @(negedge rst or posedge sysclk ) begin
-		if (rst==0) begin
+		if (rst==0 || INIT==1) begin
 			TValue0 <= 0; TValue1 <= 0; TValue2 <= 0;
 			Motor <= 0;
 		end
