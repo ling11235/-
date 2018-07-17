@@ -9,7 +9,7 @@
 // Project Name: 
 // Target Devices: Arty S7
 // Tool Versions: 
-// Description: 把8位的并行输入转化位串行输出，先输出高位，再输出低位
+// Description: 把8位的并行输入转化位串行输出，先输出低位，再输出高位
 // 
 // Dependencies: 
 // 
@@ -44,9 +44,9 @@ module SERIAL(
         if (scnt == 3)
             data_tmp <= data_i;
         else if (scnt[0] == 1)
-            data_tmp <= data_tmp << 1;
+            data_tmp <= data_tmp >> 1;
     end
     
-    assign data_o = data_tmp[7];
+    assign data_o = data_tmp[0];
    
 endmodule
