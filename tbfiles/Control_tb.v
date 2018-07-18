@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 module Control_tb;
-reg rst,sysclk;
+reg sysclk;
 reg[3:0] TValue0;
 reg[3:0] TValue1;
 reg[3:0] TValue2;
@@ -15,7 +15,7 @@ wire[5:0] MotorOut;
 wire[5:0] initFlag;
 wire[9:0] PulseNum;
 
-Control CtrlPart(.rst(rst),.sysclk(sysclk),.initFlag(initFlag),.INIT(INIT),
+Control CtrlPart(.sysclk(sysclk),.initFlag(initFlag),.INIT(INIT),
 				.Motor(Motor),.TValue0(TValue0),.TValue1(TValue1),.TValue2(TValue2),.Busy(Busy),
 				.MotorOut(MotorOut),.PulseNum(PulseNum),.DROut(DROut));
 
@@ -24,12 +24,11 @@ Pulse PS(.sysclk(sysclk),
 		.Busy(Busy),.INIT(INIT),.initFlag(initFlag),.PU(PU),.MF(MF),.DR(DR));
 
 initial begin
-	rst = 1; sysclk = 0;
+	sysclk = 0;
 	Motor = 0;
 	TValue0 = 0; TValue1 = 0; TValue2 = 0;
 	Stop = 0;
-	#1000 rst = 0;
-	#1000 rst = 1;
+	
 	#5000 Stop = 6'b00_0001;
 	#2000 Stop = 0;
 	#10000 Stop = 6'b00_0010;
