@@ -8,7 +8,7 @@
 - 注意<=的并行性！
 - 通过按键输入得到电机编号和坐标值并输出。
 - 5键{Left,Right,Enter,Up,Down}：通过Left/Right键切换电机/坐标位，通过Up/Down键改变电机编号/坐标值，通过Enter键确认执行。
-- 输入：~~rst,~~sysclk,Left,Right,Enter,Up,Down,INIT
+- 输入：~~rst,~~ sysclk,Left,Right,Enter,Up,Down,INIT
   - ~~rst为外部复位，下降沿有效；~~
   - sysclk为系统时钟，上升沿有效；
   - INIT和初始化有关；
@@ -60,7 +60,7 @@
 
 - **TODO：存储给定关系表MotorValue->PulseNum，用时查表将输入位移值转换为脉冲数。** 
 
-- 输入：sysclk,~~rst,~~initFlag,INIT,Motor,TValue0,TValue1,TValue2,Busy
+- 输入：sysclk,~~rst,~~ initFlag,INIT,Motor,TValue0,TValue1,TValue2,Busy
 
   - sysclk为系统时钟，上升沿有效；
   - ~~rst为复位信号，下降沿有效；~~
