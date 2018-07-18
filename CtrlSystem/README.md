@@ -3,6 +3,22 @@
 本文件由于记录实际过程中code的变化，以便于将来撰写实习报告时方便查资料。
 给定总路程长度、角度（脉冲数）和坐标的关系表，要求输入坐标，电机运动到指定坐标点。
 
+### CtrlSystem
+
+- 控制信号产生的顶层模块
+- 输入：sysclk,Left,Right,Up,Down,Enter,Stop
+  - sysclk为系统时钟，上升沿有效；
+  - Left,Right,Enter,Up,Down为输入控制，假设下降沿有效；
+  - Stop为传感器输入信号，高电平表示到达限位。
+
+- 输出：Num,LCD_Enable,LCD_Num,PU,MF,DR
+  - Num，位号，2bit；
+  - LCD_Enable，LCD显示的使能信号。
+  - LCD_Num，显示的数字，4bit。
+  - PU为脉冲信号，下降沿有效，频率和电机有关；
+  - MF为上电信号，高电平有效；
+  - DR为电机方向，高电平表示反转；
+
 ### Input模块(适用于五键输入)
 
 - 注意<=的并行性！
