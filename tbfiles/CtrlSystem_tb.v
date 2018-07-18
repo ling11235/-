@@ -1,13 +1,16 @@
 `timescale 1ns/1ns
-// CtrlSystem测试文件
+// Coresystem测试文件
 module CtrlSystem_tb;
-reg rst, sysclk;
+reg sysclk;
 reg Left, Right, Up, Down, Enter;
 reg[5:0] Stop;
+wire[1:0] Num; // 位号
+wire LCD_Enable; // LCD使能信号
+wire[3:0] LCD_Num; // LCD显示数字
 wire[5:0] PU, MF, DR;
 
 initial begin
-	rst = 1; sysclk = 0;
+	sysclk = 0;
 	Left = 0; Right = 0; Up = 0; Down = 0; Enter = 0;
 	Stop = 0;
 	// 共6个电机：0,1,2,3,4,5
@@ -80,15 +83,12 @@ initial begin
 	#1000 Up = 0;
 	#10000 Enter = 1;
 	#1000 Enter = 0;		// 设定1号电机坐标为011
-
-	#100000 rst = 0;		// 异步复位
-	#1000 rst = 1;
 end
 
 always #5 sysclk = ~sysclk;
 
-CtrlSystem CSpart(.rst(rst),.sysclk(sysclk),.Stop(Stop),
+CtrlSystem CSpart(.sysclk(sysclk),.Stop(Stop),
 			.Left(Left),.Right(Right),.Up(Up),.Down(Down),.Enter(Enter),
-			.PU(PU),.MF(MF),.DR(DR));
-
+			.PU(PU),.MF(MF),.DR(DR),
+			.Num(Num),.LCD_Enable(LCD_Enable),.LCD_Num(LCD_Num));
 endmodule
