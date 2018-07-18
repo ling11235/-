@@ -1,4 +1,5 @@
 // 有初始化的脉冲信号产生模块。
+// 含有全局初始化信号INIT。
 module Pulse(
 	input sysclk,
 	input[5:0] Motor,
