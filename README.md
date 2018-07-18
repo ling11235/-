@@ -1,9 +1,9 @@
 # 步进电机控制
 ## ling11235
-- Input.v: 通过5键{Left,Right,Enter,Up,Down}输入得到电机编号和坐标值并输出。通过Left/Right键切换电机/坐标位，通过Up/Down键改变电机编号/坐标值，通过Enter键确认执行。
+- Input.v: 通过5键{Left,Right,Enter,Up,Down}输入得到电机编号和坐标值并输出给Control和LCD显示模块。
 - Control.v: 根据输入计算脉冲数、方向。
-- Pulse.v: 标定原点；根据输入产生脉冲、方向和上电标志。
-- CtrlSystem.v: 组合Input,Control和Pulse模块。
+- Pulse.v: 全局初始化信号；标定原点；根据输入产生脉冲、方向和上电标志。
+- CtrlSystem.v: 组合Input,Control和Pulse模块；无外部rst信号。
 
 ## minnyres
 - debounce.v: 按键消抖模块，消抖时间为20ms。当检测到输入按键电平的改变后，立即改变输出电平，并且在防抖时间内忽略输入按键电平的改变。
@@ -17,5 +17,5 @@
 
 ## TODO(ling11235)
 - 了解数据表存储方式，增加Control模块中位移值到角度（脉冲数）的数据表和查找逻辑。
-- 修改已有模块以适应minnyres的模块。
+- 上板测试。
 - 记录实习过程以便日后撰写实习报告。
