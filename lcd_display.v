@@ -157,7 +157,7 @@ module LCD_DISPLAY(
         if (state == 1)
             lcd_data <= inst_out;    // 初始化命令
         else if (state == 3 && lcd_page_cnt == 0)
-            lcd_data <= { 5'b10110,addr_read[9:8],addr_read[0] };   // 设置页地址
+            lcd_data <= { 5'b10110,~addr_read[9:8],~addr_read[0] };   // 设置页地址
         else if (state == 3 && lcd_page_cnt == 1)
             lcd_data <= {5'b00010,addr_read[7:5]};   // 设置列地址高4位
         else if (state == 3 && lcd_page_cnt == 2)
@@ -192,7 +192,7 @@ module LCD_DISPLAY(
     always @ (posedge sys_clk or negedge reset_o) begin
         if (reset_o == 0)
             begin_state_3 <= 0;
-        else if (addr_inst == 11 && state == 1 && scnt == 19)
+        else if (addr_inst == 13 && state == 1 && scnt == 19)
             begin_state_3 <= 1;
         else begin_state_3 <= 0;
     end

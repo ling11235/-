@@ -27,9 +27,9 @@ module LCD_INST_ROM(
 
     (* ram_style = "distributed" *)
 
-    reg [7:0] lcd_inst [0:12];
+    reg [7:0] lcd_inst [0:13];
 
-    initial $readmemh("./lcd_inst_rom.txt", lcd_inst, 0, 12);
+    initial $readmemh("./lcd_inst_rom.txt", lcd_inst, 0, 13);
 
     assign data_r = lcd_inst[addr_r];
    
