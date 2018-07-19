@@ -1,20 +1,19 @@
+`timescale 1ns/1ps
 // 有初始化的脉冲信号产生模块。
-// 含有全局初始化信号INIT。
 module Pulse(
 	input sysclk,
+	input INIT,
 	input[5:0] Motor,
 	input[9:0] PulseNum,
 	input[5:0] DRIn,
 	input[5:0] Stop, // 限位触发信号
 	output reg Busy, // 工作标志
-	output reg INIT, // 初始化标识
 	output reg[5:0] initFlag, // 原点标定标志
 	output reg[5:0] PU, // 脉冲
 	output reg[5:0] MF, // 上电
 	output reg[5:0] DR // 方向
 	);
 	reg Sign,SS,DSS;
-	reg[1:0] tmp; // 时钟沿计数器 //仅初始化使用
 	reg[5:0] LastStop;
 	reg[5:0] LastMotor; // 上次电机
 	reg[9:0] LastPulse; // 上次脉冲数
@@ -22,8 +21,6 @@ module Pulse(
 	reg[14:0] Freqcnt;
 
 	parameter Boundry = 49; // 分频倍数
-	initial INIT = 1;
-	initial tmp = 0;
 
 	//Stop上升沿检测
 	always @(posedge sysclk) begin
@@ -31,10 +28,7 @@ module Pulse(
 		SS <= LastStop==Stop ? 0 : (|Stop); // Stop上升沿
 		DSS <= LastStop==Stop ? 0 : (|LastStop); // Stop下降沿
 	end
-	always @(posedge sysclk) begin
-		tmp = INIT==1 ? tmp+1 : 0;
-		INIT <= tmp==2'b10 ? 0 : INIT;
-	end
+	
 	// initFlag信号初始化为0, 假定Stop初始时为0
 	always @(posedge sysclk) begin
 		if (INIT==1)
@@ -78,7 +72,7 @@ module Pulse(
 				Busy <= 1;
 		end
 		else begin
-			if (|tmp==1)
+			if (INIT==1)
 				Busy <= 0;
 			else if (Stop==0) 
 				Busy <= (Signcnt<LastPulse ? 1 : 0);
