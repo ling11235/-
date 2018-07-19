@@ -1,8 +1,8 @@
-`timescale 1ns/1ns
-// Coresystem测试文件
+`timescale 1ns/1ps
+// Ctrlsystem测试文件
 module CtrlSystem_tb;
 reg sysclk;
-reg Left, Right, Up, Down, Enter;
+reg L, R, U, D, E;
 reg[5:0] Stop;
 wire[1:0] Num; // 位号
 wire LCD_Enable; // LCD使能信号
@@ -11,7 +11,7 @@ wire[5:0] PU, MF, DR;
 
 initial begin
 	sysclk = 0;
-	Left = 0; Right = 0; Up = 0; Down = 0; Enter = 0;
+	L = 0; R = 0; U = 0; D = 0; E = 0;
 	Stop = 0;
 	// 共6个电机：0,1,2,3,4,5
 	#5000 Stop = 6'b00_0001;
@@ -27,68 +27,67 @@ initial begin
 	#4000 Stop = 6'b10_0000;
 	#2000 Stop = 0;         // 5标定
 
-	#10000 Up = 1;
-	#1000 Up = 0;			// 1号
-	#10000 Down = 1;
-	#1000 Down = 0;			// 0号
-	#10000 Down = 1;
-	#1000 Down = 0;			// 5号
+	#10000 U = 1;
+	#1000 U = 0;			// 1号
+	#10000 D = 1;
+	#1000 D = 0;			// 0号
+	#10000 D = 1;
+	#1000 D = 0;			// 5号
 
-	#10000 Right = 1;		// 百位
-	#1000 Right = 0;
-	#10000 Right = 1;		// 十位
-	#1000 Right = 0;
-	#10000 Right = 1;		// 个位
-	#1000 Right = 0;
-	#10000 Up = 1;
-	#1000 Up = 0;			// 1
-	#10000 Left = 1;
-	#1000 Left = 0;			// 十位
-	#10000 Up = 1;
-	#1000 Up = 0;			// 1
-	#10000 Enter = 1;
-	#1000 Enter = 0;		// 设定5号电机坐标为011
+	#10000 R = 1;		// 百位
+	#1000 R = 0;
+	#10000 R = 1;		// 十位
+	#1000 R = 0;
+	#10000 R = 1;		// 个位
+	#1000 R = 0;
+	#10000 U = 1;
+	#1000 U = 0;			// 1
+	#10000 L = 1;
+	#1000 L = 0;			// 十位
+	#10000 U = 1;
+	#1000 U = 0;			// 1
+	#10000 E = 1;
+	#1000 E = 0;		// 设定5号电机坐标为011
 
-	#100000 Down = 1;		// 0
-	#1000 Down = 0;
-	#10000 Right = 1;		// 个位
-	#1000 Right = 0;
-	#10000 Down = 1;		// 0
-	#1000 Down = 0;
-	#100000 Down = 1;		// 9
-	#1000 Down = 0;
-	#100000 Down = 1;
-	#1000 Down = 0;			// 8
-	#10000 Enter = 1;
-	#1000 Enter = 0;		// 设定5号电机坐标为008
+	#100000 D = 1;		// 0
+	#1000 D = 0;
+	#10000 R = 1;		// 个位
+	#1000 R = 0;
+	#10000 D = 1;		// 0
+	#1000 D = 0;
+	#100000 D = 1;		// 9
+	#1000 D = 0;
+	#100000 D = 1;
+	#1000 D = 0;			// 8
+	#10000 E = 1;
+	#1000 E = 0;		// 设定5号电机坐标为008
 
-	#100000 Right = 1;		// 电机位
-	#1000 Right = 0;
-	#10000 Up = 1;			// 0
-	#1000 Up = 0;
-	#10000 Up = 1;
-	#1000 Up = 0;			// 1
+	#100000 R = 1;		// 电机位
+	#1000 R = 0;
+	#10000 U = 1;			// 0
+	#1000 U = 0;
+	#10000 U = 1;
+	#1000 U = 0;			// 1
 
-	#10000 Left = 1;		// 个位
-	#1000 Left = 0;
-	#10000 Up = 1;			// 9
-	#1000 Up = 0;
-	#10000 Up = 1;			// 0
-	#1000 Up = 0;
-	#10000 Up = 1;			// 1
-	#1000 Up = 0;
-	#10000 Left = 1;		// 十位
-	#1000 Left = 0;
-	#10000 Up = 1;			// 1
-	#1000 Up = 0;
-	#10000 Enter = 1;
-	#1000 Enter = 0;		// 设定1号电机坐标为011
+	#10000 L = 1;		// 个位
+	#1000 L = 0;
+	#10000 U = 1;			// 9
+	#1000 U = 0;
+	#10000 U = 1;			// 0
+	#1000 U = 0;
+	#10000 U = 1;			// 1
+	#1000 U = 0;
+	#10000 L = 1;		// 十位
+	#1000 L = 0;
+	#10000 U = 1;			// 1
+	#1000 U = 0;
+	#10000 E = 1;
+	#1000 E = 0;		// 设定1号电机坐标为011
 end
 
 always #5 sysclk = ~sysclk;
 
-CtrlSystem CSpart(.sysclk(sysclk),.Stop(Stop),
-			.Left(Left),.Right(Right),.Up(Up),.Down(Down),.Enter(Enter),
-			.PU(PU),.MF(MF),.DR(DR),
-			.Num(Num),.LCD_Enable(LCD_Enable),.LCD_Num(LCD_Num));
+CtrlSystem CSpart(.sysclk(sysclk),.Stop(Stop),.L(L),.R(R),.U(U),.D(D),.E(E),
+			.Num(Num),.LCD_Enable(LCD_Enable),.LCD_Num(LCD_Num),
+			.PU(PU),.MF(MF),.DR(DR));
 endmodule
