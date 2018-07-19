@@ -4,7 +4,7 @@ module Init(
 	input sysclk,
 	output reg INIT  // 初始化标识
 	);
-	reg[1:0] CLKCNT  // 时钟沿计数器 //仅初始化使用
+	reg[1:0] CLKCNT;  // 时钟沿计数器 //仅初始化使用
 
 	initial INIT = 1;
 	initial CLKCNT = 0;
