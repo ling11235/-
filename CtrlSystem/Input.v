@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // 通过5键{Left,Right,Enter,Up,Down}输入得到电机编号和坐标值
 // 通过Left/Right键切换电机/坐标位，通过Up/Down键改变电机编号/坐标值，
 // 通过Enter键确认执行
