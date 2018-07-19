@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 // 控制模块，输出脉冲数、方向。
 module Control(
 	input sysclk,
