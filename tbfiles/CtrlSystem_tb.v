@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+//`timescale 1ns/1ns // JUST FOR TEST !!
 // Ctrlsystem测试文件
 module CtrlSystem_tb;
 reg sysclk;
@@ -28,6 +29,15 @@ initial begin
 	#2000 Stop = 0;         // 5标定
 
 	#10000 U = 1;
+	#10 U = 0; // 模拟按键抖动
+	#10 U = 1;
+	#10 U = 0;
+	#10 U = 1;
+	#1000 U = 0;			// 1号
+	#10 U = 1;
+	#10 U = 0;
+	#10 U = 1;
+	#10 U = 0;
 	#1000 U = 0;			// 1号
 	#10000 D = 1;
 	#1000 D = 0;			// 0号
