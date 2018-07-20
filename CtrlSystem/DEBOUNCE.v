@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+//`timescale 1ns/1ns // JUST FOR TEST !!
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -27,13 +28,16 @@ module DEBOUNCE(
     );
     
     parameter TIME = 240000;  // 消抖的时钟周期个数，等于时钟周期*消抖时间，需要根据实际条件修改
+    //parameter TIME = 50; // JUST FOR TEST!!
     parameter BITS = 20;   // 计数器的位数
     
     reg [BITS-1:0] count;   // 计数器
     reg key_count;          // 计数标志，输入按键电平出现翻转后变为高电平，并开始计数，计数结束后变为低电平
     reg key_i_temp;         // 输入按键电平的一个时钟周期的延时
 
-    initial key_count = 0;
+    initial key_count = 0; // JUST FOR TEST !!
+    initial key_i_temp = 0; // JUST FOR TEST !!
+    initial key_o = 0; // JUST FOR TEST !!
     
     always @ (posedge sys_clk) begin
         key_i_temp <= key_i;
