@@ -1,6 +1,6 @@
+`timescale 1ns/1ps
 // 控制模块，输出脉冲数、方向。
 module Control(
-	input rst,
 	input sysclk,
 	input[5:0] initFlag, // 初始化标志位
 	input INIT, // 初始化标识
@@ -24,8 +24,8 @@ module Control(
 	reg[9:0] LastValue4;
 	reg[9:0] LastValue5;
 
-	always @(posedge sysclk or negedge rst) begin
-		if (rst==0 || INIT==1) begin // 异步复位/初始值
+	always @(posedge sysclk) begin
+		if (INIT==1) begin // 异步复位/初始值
 			PulseNum <= 0; DRSign <= 0;
 			Value <= 0; DROut <= 0;
 			MotorValue <= 0; MotorIn <= 0; MotorOut <= 0;
