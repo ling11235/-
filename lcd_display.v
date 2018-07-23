@@ -16,12 +16,19 @@
 // Revision:
 // Revision 1.0 - File Created
 // Additional Comments:
-// 
+// Revision 1.1 - 增加修改显示数字的功能
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module LCD_DISPLAY(
     input sys_clk,   // 系统时钟，这里频率设置为12MHz
+    input [1:0] number_index,  // 输入的数字的显示位置
+    // number_index = 0 -> 电机编号
+    // number_index = 1 -> 位移第1位
+    // number_index = 2 -> 位移第2位
+    // number_index = 3 -> 位移第3位
+    input [3:0] number_in,   // 输入的数字，0到9
+    input number_modify_en,  // 修改数字的使能信号，一个时钟周期的高电平
     output reg reset_o, // 输出的对LCD进行硬件复位的信号，要求输出至少1us的低电平，复位完成后保持高电平，复位完成以后至少等待1us
     output sck,  // LCD的串行时钟
     output sda,  // 串行数据或者指令
@@ -114,14 +121,11 @@ module LCD_DISPLAY(
     ///////////////////////////////////////////////////////
     // LCD的点阵数据RAM
     reg [9:0] addr_write;   // 写入RAM的地址
-    reg [7:0] data_write;   // 写入RAM的数据
+    wire [7:0] data_write;   // 写入RAM的数据
     reg [9:0] addr_read;    // 读RAM的地址
     wire [7:0] data_read;    // 从RAM读出的数据
     reg write_en;       // 写入的使能信号，高电平有效
 
-    initial write_en <= 0;
-
-    initial data_write <= 0;
 
     reg [1:0] lcd_page_cnt; // 修改LCD的一页的计数器，周期为4
     // lcd_page_cnt = 0，设置页地址
@@ -157,7 +161,7 @@ module LCD_DISPLAY(
         if (state == 1)
             lcd_data <= inst_out;    // 初始化命令
         else if (state == 3 && lcd_page_cnt == 0)
-            lcd_data <= { 5'b10110,addr_read[9:8],addr_read[0] };   // 设置页地址
+            lcd_data <= { 5'b10110,~addr_read[9:8],~addr_read[0] };   // 设置页地址
         else if (state == 3 && lcd_page_cnt == 1)
             lcd_data <= {5'b00010,addr_read[7:5]};   // 设置列地址高4位
         else if (state == 3 && lcd_page_cnt == 2)
@@ -192,7 +196,9 @@ module LCD_DISPLAY(
     always @ (posedge sys_clk or negedge reset_o) begin
         if (reset_o == 0)
             begin_state_3 <= 0;
-        else if (addr_inst == 11 && state == 1 && scnt == 19)
+        else if (addr_inst == 13 && state == 1 && scnt == 19)
+            begin_state_3 <= 1;
+        else if (addr_write == 415 && state == 2)
             begin_state_3 <= 1;
         else begin_state_3 <= 0;
     end
@@ -206,6 +212,69 @@ module LCD_DISPLAY(
             rs <= 1;
         else rs <= 0;
     end
+
+    ///////////////////////////////////////////////////////
+    // 根据外部信号，修改显示的数字
+
+    // 保存需要显示的4个数字的RAM
+    (* ram_style = "distributed" *)
+    reg [3:0] number_to_display [0:3];  
+
+    // 记录需要显示的4位数字
+    always @ (posedge sys_clk or negedge reset_o) begin
+        if (reset_o == 0) begin
+            number_to_display[0] <= 1;
+            number_to_display[1] <= 0;
+            number_to_display[2] <= 0;
+            number_to_display[3] <= 0;
+        end
+        else if (number_modify_en == 1)
+            number_to_display[number_index] <= number_in;   
+    end
+
+    // 设置写入LCD RAM的地址
+    always @ (posedge sys_clk) begin
+        if (number_modify_en == 1) 
+            addr_write <= 144;   // 第一个数字在LCD点阵RAM中的地址
+        else if (addr_write == 159) 
+            addr_write <= 368;   // 第二个数字在LCD点阵RAM中的地址
+        else addr_write <= addr_write + 1;
+    end
+
+    //使能信号有效时，把数字的显示位置保存到寄存器
+    reg [1:0] number_index_reg;
+    always @ (posedge sys_clk) begin
+        if (number_modify_en == 1)
+            number_index_reg <= number_index;
+    end
+
+    // 控制写入LCD RAM的使能信号
+    always @ (posedge sys_clk or posedge reset_o) begin
+        if (reset_o == 0)
+            write_en <= 0;
+        else if (number_modify_en == 1)
+            write_en <= 1;
+        else if (addr_write == 415)
+            write_en <= 0;
+    end
+
     
+    reg [1:0] number_count;  // 对写入LCD RAM的数计数，从0开始，每写完一个加1
+
+    always @ (posedge sys_clk) begin
+        if (number_modify_en == 1)
+            number_count <= 0;
+        else if (addr_write[3:0] == 15)  // 当前的数字点阵已经全部写入LCD RAM
+            number_count <= number_count + 1;
+    end
+
+    // 从LCD的数字点阵ROM中读取
+    wire [7:0] data_write_temp;  // 从LCD数字点阵读出的数据
+    wire [7:0] number_rom_read_addr;   // 读地址
+    assign number_rom_read_addr = { number_to_display[number_count], addr_write[3:0]};
+    LCD_NUMBER_ROM lcd_number_rom(number_rom_read_addr ,data_write_temp);
+    
+    // 当前设置的数字的点阵需要取反
+    assign data_write = (number_count == number_index_reg) ? (~data_write_temp) : (data_write_temp); 
 
 endmodule

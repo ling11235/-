@@ -31,9 +31,9 @@ module LCD_RAM(
 
     (* ram_style = "block" *)
 
-    initial $readmemh("./lcd_matrix_ram.txt", lcd_data, 0, 1023);
-
     reg [7:0] lcd_data [0:1023];
+
+    initial $readmemh("./lcd_matrix_ram.txt", lcd_data, 0, 1023);
 
     always @ (posedge sys_clk) begin
         data_r <= lcd_data[addr_r];
