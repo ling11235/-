@@ -223,7 +223,7 @@ module LCD_DISPLAY(
     // 记录需要显示的4位数字
     always @ (posedge sys_clk or negedge reset_o) begin
         if (reset_o == 0) begin
-            number_to_display[0] <= 1;
+            number_to_display[0] <= 0;
             number_to_display[1] <= 0;
             number_to_display[2] <= 0;
             number_to_display[3] <= 0;
