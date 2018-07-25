@@ -1,2 +1,0 @@
-# CtrlSystem_LCDdisplay
-RT
