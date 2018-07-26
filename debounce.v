@@ -9,7 +9,7 @@
 // Project Name: 
 // Target Devices: Arty S7
 // Tool Versions: 
-// Description: 按键消抖模块，消抖时间为20ms
+// Description: 按键消抖模块，消抖时间为50ms
 // 
 // Dependencies: 
 // 
@@ -26,7 +26,7 @@ module DEBOUNCE(
     output reg key_o     // 输出：消抖后的按键电平
     );
     
-    parameter TIME = 240000;  // 消抖的时钟周期个数，等于时钟周期*消抖时间，需要根据实际条件修改
+    parameter TIME = 600000;  // 消抖的时钟周期个数，等于时钟周期*消抖时间，需要根据实际条件修改
     parameter BITS = 20;   // 计数器的位数
     
     reg [BITS-1:0] count;   // 计数器
