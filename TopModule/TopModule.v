@@ -8,13 +8,14 @@ module TopModule(
 	input U,
 	input D,
 	input E,
-	input[5:0] Stop, 
-	output wire[9:0] LED, 
-	output reset_o, // 输出的对LCD进行硬件复位的信号，要求输出至少1us的低电平，复位完成后保持高电平，复位完成以后至少等待1us
-  output sck,  // LCD的串行时钟
-  output sda,  // 串行数据或者指令
-  output rs,   // 寄存器选择，发送数据时为高电平，发送指令时为低电平
-  output cs   // 片选信号，在发送数据或者指令时保持低电平，其他时候为高电平
+	input[5:0] Stop,
+	output wire[4:0] LED,
+	output wire[2:0] Wave,
+	output reset_o,
+    output sck,
+    output sda,
+    output rs,
+    output cs
 	);
 	
 	parameter DATA_NUM = 1000;
@@ -24,16 +25,20 @@ module TopModule(
 	wire LCD_Enable, Busy, INIT;
 	wire[1:0] Num;
 	wire[3:0] LCD_Num, Motor;
-	wire[5:0] o_Motor, DROut, initFlag;
+	wire[5:0] o_Motor, DRSign, initFlag;
 	wire[5:0] Stop_DB, PU, MF, DR;
 	wire[9:0] Value;
 	wire[DATA_WIDTH-1:0] PulseNum;
 
-	assign LED[5:0] = initFlag;
-	assign LED[6] = PU[0];
-	assign LED[7] = MF[0];
-	assign LED[8] = DR[0];
-	assign LED[9] = Busy; 
+	assign LED[0] = &PU;
+	assign LED[1] = MF[0];
+	assign LED[2] = DR[0];
+	assign LED[3] = Busy;
+	assign LED[4] = &initFlag;
+	assign Wave[0] = LED[0];
+	assign Wave[1] = LED[1];
+	assign Wave[2] = LED[2];
+
 
 	KEY_DEBOUNCE_DETECT LDB(.sys_clk(sysclk),.key_i(L),.key_o(Left));
 	KEY_DEBOUNCE_DETECT RDB(.sys_clk(sysclk),.key_i(R),.key_o(Right));
@@ -61,11 +66,11 @@ module TopModule(
 
 	Control Ctrlpart(.sysclk(sysclk),.INIT(INIT),
 					.initFlag(initFlag),.Busy(Busy),
-					.i_Motor(Motor),.Value(Value),
-					.o_Motor(o_Motor),.PulseNum(PulseNum),.DROut(DROut));
+					.i_Motor(Motor[2:0]),.Value(Value),
+					.o_Motor(o_Motor),.PulseNum(PulseNum),.DRSign(DRSign));
 
 	Pulse pulsepart(.sysclk(sysclk),.INIT(INIT),.Stop(Stop_DB),
-				.Motor(o_Motor),.PulseNum(PulseNum),.DRIn(DROut),
+				.Motor(o_Motor),.PulseNum(PulseNum),.DRSign(DRSign),
 				.Busy(Busy),.initFlag(initFlag),.PU(PU),.MF(MF),.DR(DR));
 
 endmodule
