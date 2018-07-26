@@ -5,7 +5,7 @@ module Pulse(
 	input INIT,
 	input[5:0] Motor,
 	input[9:0] PulseNum,
-	input[5:0] DRIn,
+	input[5:0] DRSign,
 	input[5:0] Stop, // 限位触发信号
 	output reg Busy, // 工作标志
 	output reg[5:0] initFlag, // 原点标定标志
@@ -20,10 +20,10 @@ module Pulse(
 	reg[5:0] LastMotor; // 上次电机
 	reg[9:0] LastPulse; // 上次脉冲数
 	reg[9:0] Signcnt;
-	reg[14:0] Freqcnt;
+	reg[22:0] Freqcnt;
 
-	parameter Boundry = 3000000; // 0.25Hz
-	//parameter Boundry = 50; // 分频倍数
+	parameter Boundry = 3000000; // 2Hz, 根据实际情况调节
+	//parameter Boundry = 50; // Just For Test !!
 
 	//Stop上升沿检测
 	always @(posedge sysclk) begin
@@ -61,7 +61,7 @@ module Pulse(
 	// DR
 	always @(posedge sysclk) begin
 		if (&initFlag)
-			DR <= DRIn;
+			DR <= DRSign;
 		else
 			DR <= Stop;
 	end
@@ -69,7 +69,7 @@ module Pulse(
 	always @(posedge sysclk) begin
 		if (&initFlag) begin  // 已标定原点
 			// 脉冲发射完后置0
-			if (DR==DRIn && LastPulse==PulseNum && LastMotor==Motor)
+			if (DR==DRSign && LastPulse==PulseNum && LastMotor==Motor)
 				Busy <= Signcnt<LastPulse ? Busy : 0;
 			else // 脉冲数或电机号或者转动方向发生变化后置1
 				Busy <= 1;
@@ -78,7 +78,7 @@ module Pulse(
 			if (INIT==1)
 				Busy <= 0;
 			else if (Stop==0) 
-				Busy <= (Signcnt<LastPulse ? 1 : 0);
+				Busy <= Signcnt<LastPulse ? 1 : 0;
 			else begin
 				if (SS==1)
 					Busy <= 0;
