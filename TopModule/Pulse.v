@@ -5,7 +5,7 @@ module Pulse(
 	input INIT,
 	input[5:0] Motor,
 	input[9:0] PulseNum,
-	input[5:0] DRIn,
+	input[5:0] DRSign,
 	input[5:0] Stop, // 限位触发信号
 	output reg Busy, // 工作标志
 	output reg[5:0] initFlag, // 原点标定标志
@@ -14,13 +14,16 @@ module Pulse(
 	output reg[5:0] DR // 方向
 	);
 	reg Sign,SS,DSS;
+	wire[5:0] SignCopys;
+	wire[5:0] BusyCopys;
 	reg[5:0] LastStop;
 	reg[5:0] LastMotor; // 上次电机
 	reg[9:0] LastPulse; // 上次脉冲数
 	reg[9:0] Signcnt;
-	reg[14:0] Freqcnt;
+	reg[22:0] Freqcnt;
 
-	parameter Boundry = 49; // 分频倍数
+	parameter Boundry = 3000000; // 2Hz, 根据实际情况调节
+	//parameter Boundry = 50; // Just For Test !!
 
 	//Stop上升沿检测
 	always @(posedge sysclk) begin
@@ -58,7 +61,7 @@ module Pulse(
 	// DR
 	always @(posedge sysclk) begin
 		if (&initFlag)
-			DR <= DRIn;
+			DR <= DRSign;
 		else
 			DR <= Stop;
 	end
@@ -66,7 +69,7 @@ module Pulse(
 	always @(posedge sysclk) begin
 		if (&initFlag) begin  // 已标定原点
 			// 脉冲发射完后置0
-			if (DR==DRIn && LastPulse==PulseNum && LastMotor==Motor)
+			if (DR==DRSign && LastPulse==PulseNum && LastMotor==Motor)
 				Busy <= Signcnt<LastPulse ? Busy : 0;
 			else // 脉冲数或电机号或者转动方向发生变化后置1
 				Busy <= 1;
@@ -75,7 +78,7 @@ module Pulse(
 			if (INIT==1)
 				Busy <= 0;
 			else if (Stop==0) 
-				Busy <= (Signcnt<LastPulse ? 1 : 0);
+				Busy <= Signcnt<LastPulse ? 1 : 0;
 			else begin
 				if (SS==1)
 					Busy <= 0;
@@ -90,14 +93,14 @@ module Pulse(
 		if (Busy==0)
 			Freqcnt <= 0;
 		else
-			Freqcnt <= Freqcnt==Boundry ? 0 : Freqcnt + 1;
+			Freqcnt <= Freqcnt==Boundry-1 ? 0 : Freqcnt + 1;
 	end
 	// 脉冲计数器
 	always @(posedge sysclk) begin
 		if (Busy==0)
 			Signcnt <= 0;
 		else begin
-			if (Freqcnt==Boundry) begin
+			if (Freqcnt==Boundry-1) begin
 				if (Signcnt<LastPulse) 
 					Signcnt <= Sign==0 ? Signcnt+1 : Signcnt;
 				else
@@ -112,25 +115,24 @@ module Pulse(
 		if (Busy==0)
 			Sign <= 1;
 		else begin
-			if (Freqcnt==Boundry)
+			if (Freqcnt==Boundry-1) begin
 				Sign <= Signcnt<LastPulse ? ~Sign : 1;
+			end
 			else
 				Sign <= Sign;
 		end
 	end
 	// 根据电机编号输出控制信号
+	assign SignCopys = {Sign,Sign,Sign,Sign,Sign,Sign};
+	assign BusyCopys = {Busy,Busy,Busy,Busy,Busy,Busy};
+
 	always @(posedge sysclk) begin
 		if (Busy==0) begin
-			PU <= 6'b11_1111;
-			MF <= 0;
+			PU <= 6'b11_1111; MF <= 0;
 		end
 		else begin
-			PU[0] <= (!LastMotor[0])|Sign; MF[0] = LastMotor[0]&Busy;
-			PU[1] <= (!LastMotor[1])|Sign; MF[1] = LastMotor[1]&Busy;
-			PU[2] <= (!LastMotor[2])|Sign; MF[2] = LastMotor[2]&Busy;
-			PU[3] <= (!LastMotor[3])|Sign; MF[3] = LastMotor[3]&Busy;
-			PU[4] <= (!LastMotor[4])|Sign; MF[4] = LastMotor[4]&Busy;
-			PU[5] <= (!LastMotor[5])|Sign; MF[5] = LastMotor[5]&Busy;
+			PU <= (~LastMotor) | SignCopys;
+			MF <= LastMotor & BusyCopys;
 		end
 	end
 endmodule

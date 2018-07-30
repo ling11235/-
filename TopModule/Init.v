@@ -8,8 +8,10 @@ module Init(
 
 	initial INIT = 1;
 	initial CLKCNT = 0;
+
 	always @(posedge sysclk) begin
 		CLKCNT = INIT==1 ? CLKCNT+1 : 0;
 		INIT <= CLKCNT==2'b10 ? 0 : INIT; // 2个周期后初始化结束
 	end
+
 endmodule
